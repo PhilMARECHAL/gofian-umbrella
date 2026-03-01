@@ -1146,100 +1146,91 @@ html, body, #root {
 }
 
 /* ============================================================
-   v0.4: Weather Info Panel (Council of Ten — Glassmorphic)
-   6 weather stats in a 3-column grid
+   v0.4.2: Ghost Grid (Council of Ten — Zero Chrome)
+   Invisible 3×2 grid. Cascade-in animation. Touch = golden thread.
    ============================================================ */
 
-.weather-info-panel {
+.ghost-grid {
   position: relative;
-  margin: 8px 16px;
-  max-height: 35vh;
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 16px;
+  width: 100%;
+  padding: 0 20px;
   z-index: 5;
-  overflow-y: auto;
 }
 
-.weather-info-panel__description {
-  font-size: clamp(13px, 3vw, 15px);
+.ghost-grid__sky {
+  font-size: clamp(11px, 3vw, 13px);
   color: var(--text-secondary);
   text-align: center;
-  margin-bottom: 12px;
-  text-transform: capitalize;
+  opacity: 0.6;
+  margin-bottom: 16px;
+  animation: ghostCascade 0.6s ease-out backwards;
+  animation-delay: var(--cascade-delay, 0s);
 }
 
-.weather-info-grid {
+.ghost-grid__stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 20px 12px;
 }
 
-.weather-stat {
+.ghost-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 6px 4px;
+  gap: 3px;
+  cursor: default;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  animation: ghostCascade 0.5s ease-out backwards;
+  animation-delay: var(--cascade-delay, 0s);
 }
 
-.weather-stat__icon {
-  font-size: 18px;
+/* Touch/hover: scale up + glow */
+.ghost-stat:active {
+  transform: scale(1.2);
+  filter: brightness(1.4);
 }
 
-.weather-stat__value {
-  font-size: clamp(14px, 3.5vw, 18px);
-  font-weight: 600;
+/* When one stat is active, dim siblings */
+.ghost-grid__stats:has(.ghost-stat:active) .ghost-stat:not(:active) {
+  opacity: 0.35;
+  transition: opacity 0.15s ease;
+}
+
+.ghost-stat__value {
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
 }
 
-.weather-stat__sub {
-  font-size: clamp(10px, 2.5vw, 12px);
+.ghost-stat__sub {
+  font-size: clamp(10px, 2.8vw, 12px);
   color: var(--text-dim);
-}
-
-/* Temperature color coding */
-.stat--freezing { color: var(--accent-cold) !important; }
-.stat--cold { color: #93c5fd !important; }
-.stat--warm { color: var(--accent-sun) !important; }
-.stat--hot { color: var(--accent-heat) !important; }
-
-/* Rain probability colors */
-.stat--rain-low { color: #86efac !important; }
-.stat--rain-medium { color: var(--accent-sun) !important; }
-.stat--rain-high { color: var(--accent-heat) !important; }
-
-.weather-info-panel__footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-}
-
-.weather-info-panel__source {
-  font-size: 10px;
-  color: var(--text-dim);
-  opacity: 0.6;
-}
-
-.weather-info-panel__more {
-  font-size: 11px;
-  color: var(--accent-sun);
-  background: none;
-  border: none;
-  cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.2s;
+  text-transform: lowercase;
 }
 
-.weather-info-panel__more:hover {
-  opacity: 1;
+/* Cascade-in animation */
+@keyframes ghostCascade {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
+/* Ghost color coding */
+.ghost--freezing { color: var(--accent-cold) !important; }
+.ghost--cold { color: #93c5fd !important; }
+.ghost--warm { color: var(--accent-sun) !important; }
+.ghost--hot { color: var(--accent-heat) !important; }
+.ghost--low { color: #86efac !important; }
+.ghost--medium { color: var(--accent-sun) !important; }
+.ghost--high { color: var(--accent-heat) !important; }
 
 /* ============================================================
    v0.4: Settings Drawer (Bottom Sheet)

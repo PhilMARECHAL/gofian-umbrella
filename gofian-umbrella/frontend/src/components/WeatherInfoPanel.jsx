@@ -1,23 +1,26 @@
 /**
- * GOFIAN UoS v0.4.0 — WeatherInfoPanel Component
- * Glassmorphic panel showing 6 weather data points.
- * Council of Ten: Weather Expert approved layout.
+ * GOFIAN UoS v0.4.2 — Ghost Grid WeatherInfoPanel
+ * Council of Ten: Interaction Choreographer + Accessibility Lead
+ *
+ * Zero-chrome 3×2 invisible grid. Values float below the icon.
+ * Each stat cascades in on load. Touch = golden thread + scale.
+ * No borders, no backgrounds — just data breathing with the icon.
  */
 
 function tempColorClass(t) {
   if (t == null) return ''
-  if (t <= 0) return 'stat--freezing'
-  if (t <= 5) return 'stat--cold'
+  if (t <= 0) return 'ghost--freezing'
+  if (t <= 5) return 'ghost--cold'
   if (t <= 25) return ''
-  if (t <= 32) return 'stat--warm'
-  return 'stat--hot'
+  if (t <= 32) return 'ghost--warm'
+  return 'ghost--hot'
 }
 
 function rainColorClass(p) {
   if (p == null) return ''
-  if (p < 0.30) return 'stat--rain-low'
-  if (p < 0.60) return 'stat--rain-medium'
-  return 'stat--rain-high'
+  if (p < 0.30) return 'ghost--low'
+  if (p < 0.60) return 'ghost--medium'
+  return 'ghost--high'
 }
 
 function uvLabel(uv) {
@@ -31,37 +34,22 @@ function uvLabel(uv) {
 
 function uvColorClass(uv) {
   if (uv == null) return ''
-  if (uv < 3) return 'stat--rain-low'
-  if (uv < 6) return 'stat--warm'
-  if (uv < 8) return 'stat--hot'
-  return 'stat--freezing'
+  if (uv < 3) return 'ghost--low'
+  if (uv < 6) return 'ghost--medium'
+  return 'ghost--high'
 }
 
-function WeatherStat({ icon, value, sublabel, colorClass, ariaLabel }) {
+function GhostStat({ value, sublabel, colorClass, delay, ariaLabel }) {
   return (
-    <div className="weather-stat" aria-label={ariaLabel}>
-      <span className="weather-stat__icon" aria-hidden="true">{icon}</span>
-      <span className={`weather-stat__value ${colorClass || ''}`}>{value}</span>
-      {sublabel && <span className="weather-stat__sub">{sublabel}</span>}
+    <div
+      className="ghost-stat"
+      style={{ '--cascade-delay': `${delay}s` }}
+      aria-label={ariaLabel}
+    >
+      <span className={`ghost-stat__value ${colorClass || ''}`}>{value}</span>
+      {sublabel && <span className="ghost-stat__sub">{sublabel}</span>}
     </div>
   )
-}
-
-// Map weather condition to emoji
-function weatherEmoji(condition, icon) {
-  if (!condition) return '🌤️'
-  const c = condition.toLowerCase()
-  if (c.includes('thunder')) return '⛈️'
-  if (c.includes('drizzle')) return '🌦️'
-  if (c.includes('rain')) return '🌧️'
-  if (c.includes('snow')) return '🌨️'
-  if (c.includes('mist') || c.includes('fog') || c.includes('haze')) return '🌫️'
-  if (c.includes('cloud')) {
-    if (icon && icon.includes('n')) return '☁️'
-    return '⛅'
-  }
-  if (icon && icon.includes('n')) return '🌙'
-  return '☀️'
 }
 
 export default function WeatherInfoPanel({ weather, ephemeris, decision, onMoreDetails }) {
@@ -75,70 +63,55 @@ export default function WeatherInfoPanel({ weather, ephemeris, decision, onMoreD
   const gust = weather.wind_gust_kmh
   const sunrise = ephemeris?.sunrise
   const sunset = ephemeris?.sunset
-  const condition = weather.weather_description
-  const weatherIcon = weather.weather_icon
 
   return (
-    <div className="weather-info-panel animate-slideUp">
-      {/* Sky description */}
-      <div className="weather-info-panel__description">
-        {weatherEmoji(weather.weather_condition, weatherIcon)}{' '}
-        {condition || 'No data'}
+    <div className="ghost-grid" role="region" aria-label="Weather details">
+      {/* Sky description — faint centered text */}
+      <div className="ghost-grid__sky" style={{ '--cascade-delay': '0s' }}>
+        {weather.source === 'demo' ? '🌙 Demo Data — Configure API Key For Real Weather' : (weather.weather_description || '')}
       </div>
 
-      {/* 2x3 grid of stats */}
-      <div className="weather-info-grid">
-        <WeatherStat
-          icon="🌡️"
+      {/* 3×2 invisible grid */}
+      <div className="ghost-grid__stats">
+        <GhostStat
           value={temp != null ? `${Math.round(temp)}°C` : '--'}
           sublabel={feelsLike != null ? `Feels ${Math.round(feelsLike)}°` : null}
           colorClass={tempColorClass(temp)}
-          ariaLabel={`Temperature: ${temp != null ? Math.round(temp) + ' degrees' : 'unavailable'}`}
+          delay={0.1}
+          ariaLabel={`Temperature: ${temp != null ? Math.round(temp) + '°C' : 'unavailable'}`}
         />
-        <WeatherStat
-          icon="🌧️"
+        <GhostStat
           value={rainProb != null ? `${Math.round(rainProb * 100)}%` : '--'}
           sublabel="Rain"
           colorClass={rainColorClass(rainProb)}
-          ariaLabel={`Rain probability: ${rainProb != null ? Math.round(rainProb * 100) + ' percent' : 'unavailable'}`}
+          delay={0.2}
+          ariaLabel={`Rain: ${rainProb != null ? Math.round(rainProb * 100) + '%' : 'unavailable'}`}
         />
-        <WeatherStat
-          icon="☀️"
+        <GhostStat
           value={uv != null ? uv.toFixed(1) : '--'}
           sublabel={uv != null ? uvLabel(uv) : 'UV'}
           colorClass={uvColorClass(uv)}
-          ariaLabel={`UV index: ${uv != null ? uv.toFixed(1) + ', ' + uvLabel(uv) : 'unavailable'}`}
+          delay={0.3}
+          ariaLabel={`UV: ${uv != null ? uv.toFixed(1) : 'unavailable'}`}
         />
-        <WeatherStat
-          icon="💨"
+        <GhostStat
           value={wind != null ? `${Math.round(wind)}` : '--'}
           sublabel={gust ? `Gusts ${Math.round(gust)} km/h` : 'km/h'}
-          ariaLabel={`Wind speed: ${wind != null ? Math.round(wind) + ' km/h' : 'unavailable'}`}
+          delay={0.4}
+          ariaLabel={`Wind: ${wind != null ? Math.round(wind) + ' km/h' : 'unavailable'}`}
         />
-        <WeatherStat
-          icon="🌅"
+        <GhostStat
           value={sunrise || '--'}
           sublabel="Sunrise"
-          ariaLabel={`Sunrise at ${sunrise || 'unavailable'}`}
+          delay={0.5}
+          ariaLabel={`Sunrise: ${sunrise || 'unavailable'}`}
         />
-        <WeatherStat
-          icon="🌇"
+        <GhostStat
           value={sunset || '--'}
           sublabel="Sunset"
-          ariaLabel={`Sunset at ${sunset || 'unavailable'}`}
+          delay={0.6}
+          ariaLabel={`Sunset: ${sunset || 'unavailable'}`}
         />
-      </div>
-
-      {/* Source + more details */}
-      <div className="weather-info-panel__footer">
-        <span className="weather-info-panel__source">
-          {weather.source === 'demo' ? '⚠️ Demo data' : `📡 ${weather.source || 'API'}`}
-        </span>
-        {onMoreDetails && (
-          <button className="weather-info-panel__more" onClick={onMoreDetails}>
-            More details
-          </button>
-        )}
       </div>
     </div>
   )
