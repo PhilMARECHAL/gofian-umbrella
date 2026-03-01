@@ -27,3 +27,13 @@ Thumbs.db
 
 # Logs
 *.log
+
+# SQLite
+instance/
+*.db
+
+# Node
+frontend/node_modules/
+
+# Build artifacts (built by Render via build.sh)
+# static/dist/ is committed for production

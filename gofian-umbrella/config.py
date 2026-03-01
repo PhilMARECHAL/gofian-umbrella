@@ -1,73 +1,127 @@
 """
-GOFIAN Umbrella BUILDER v2.2.0
+GOFIAN Umbrella or Sunglasses — Project Configuration
 Module: config
-Description: All constants, feature flags, and environment variable overrides.
-             Single source of truth for VERSION and all configurable values.
-Author: Philippe Marechal / GOFIAN AI
-Last modified: 2026-02-23
+Description: UoS configuration re-exports factory defaults + project-specific overrides.
+             Decision engine weights, icon mappings, thresholds.
+Author: GOFIAN AI
+Version: 0.1.0
 """
 
+import sys
 import os
 
-# ============================================================
-# VERSION -- Single source of truth
-# ============================================================
-VERSION = "0.1.0"
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+# Re-export factory defaults
+from factory.config.defaults import *  # noqa: F401,F403
 
 # ============================================================
-# API CONFIGURATION
+# UoS Identity
 # ============================================================
-MODEL = os.getenv("MODEL", "gpt-5.2")
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4096"))
-TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
-API_TIMEOUT = int(os.getenv("API_TIMEOUT", "90"))
+VERSION = "0.3.0"
+PROJECT_NAME = "umbrella-or-sunglasses"
+DISPLAY_NAME = "Umbrella or Sunglasses"
+TABLE_PREFIX = "uos_"
+TAGLINE = "One glance. One decision."
 
 # ============================================================
-# SESSION MANAGEMENT
+# UoS Server
 # ============================================================
-SESSION_TTL_SECONDS = 1800          # 30 minutes inactivity -> cleanup
-MAX_HISTORY_MESSAGES = 20           # Keep last 20 messages per session
-CLEANUP_INTERVAL_SECONDS = 300      # Run cleanup every 5 minutes
+UOS_PORT = int(os.getenv("UOS_PORT", "5002"))
+UOS_SECRET_KEY = os.getenv("UOS_SECRET_KEY", "uos-dev-secret-change-me")
+UOS_DEBUG = os.getenv("UOS_DEBUG", "true").lower() == "true"
+UOS_CORS_ORIGINS = os.getenv("UOS_CORS_ORIGINS", "*")
 
 # ============================================================
-# RATE LIMITING
+# Weather API Configuration
 # ============================================================
-RATE_LIMIT_MAX_REQUESTS = 30        # Max requests per window
-RATE_LIMIT_WINDOW_SECONDS = 60      # Sliding window duration
+# Primary: OpenWeatherMap (free tier: 1000 calls/day)
+OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY", "")
+OPENWEATHERMAP_BASE_URL = "https://api.openweathermap.org/data/3.0"
+
+# Secondary: WeatherAPI (free tier: 1M calls/month)
+WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "")
+WEATHERAPI_BASE_URL = "https://api.weatherapi.com/v1"
+
+# Cache TTL for weather data (seconds)
+WEATHER_CACHE_TTL = int(os.getenv("UOS_WEATHER_CACHE_TTL", "300"))  # 5 minutes
 
 # ============================================================
-# VALIDATION
+# Decision Engine — Scoring Weights (Analyst-approved v1)
 # ============================================================
-MAX_MESSAGE_LENGTH = 2000           # Standard chat message
-MAX_PROMPT_PASTE_LENGTH = 10000     # Improve mode: pasted prompt
-
-# ============================================================
-# INSPIRATION API (mod #13)
-# ============================================================
-INSPIRATION_CACHE_SECONDS = 3600    # Cache inspiration data for 1 hour
-GNEWS_API_KEY = os.getenv("GNEWS_API_KEY", "")  # Optional: gnews.io free tier
-
-# ============================================================
-# FEATURE FLAGS
-# ============================================================
-FEATURES = {
-    "dual_mode": True,              # Create + Improve modes
-    "star_feedback": True,          # Star post-prompt rating
-    "email_share": True,            # Email button
-    "inspiration": True,            # Dynamic welcome inspiration
-    "emailjs": False,               # Phase 2: EmailJS HTML emails
-    "streaming": False,             # Phase 2: SSE streaming
-    "pdf_export": False,            # Phase 2: downloadable PDF
-    "user_accounts": False,         # Phase 3: auth + history
+SCORING_WEIGHTS = {
+    "rain_probability": 0.35,   # Strongest predictor of umbrella need
+    "uv_index": 0.20,          # Primary sunglasses trigger
+    "wind_speed": 0.15,        # Affects perceived temp + umbrella usability
+    "temperature": 0.15,       # Cold/heat alerts
+    "forecast_confidence": 0.10,  # Modulates confidence glow
+    "sun_elevation": 0.05,     # Sunrise/sunset context
 }
 
 # ============================================================
-# LOGGING
+# Decision Thresholds
 # ============================================================
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+THRESHOLDS = {
+    "rain_umbrella": 0.40,         # Rain probability >= 40% → umbrella
+    "rain_high": 0.70,             # Rain probability >= 70% → strong umbrella
+    "uv_sunglasses": 3,            # UV index >= 3 → sunglasses
+    "uv_high": 6,                  # UV index >= 6 → strong sunglasses
+    "wind_alert": 40,              # Wind km/h >= 40 → wind alert
+    "wind_strong": 60,             # Wind km/h >= 60 → strong wind
+    "temp_cold": 5,                # °C <= 5 → cold alert
+    "temp_freezing": 0,            # °C <= 0 → strong cold
+    "temp_hot": 32,                # °C >= 32 → heat alert
+    "temp_extreme": 38,            # °C >= 38 → extreme heat
+    "confidence_notify": 0.80,     # Min confidence to send notification
+    "severe_weather_override": True,  # Always show danger icon for severe weather
+}
 
 # ============================================================
-# SERVER
+# Icon Definitions
 # ============================================================
-PORT = int(os.getenv("PORT", "5000"))
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+ICONS = {
+    "sunglasses": {"emoji": "\u2600\ufe0f", "label": "sunglasses", "priority": 2},
+    "umbrella": {"emoji": "\U0001f327\ufe0f", "label": "umbrella", "priority": 1},
+    "wind": {"emoji": "\U0001f32c\ufe0f", "label": "wind", "priority": 3},
+    "cold": {"emoji": "\u2744\ufe0f", "label": "cold", "priority": 4},
+    "heat": {"emoji": "\U0001f525", "label": "heat", "priority": 4},
+    "sunrise": {"emoji": "\U0001f305", "label": "sunrise", "priority": 5},
+    "sunset": {"emoji": "\U0001f307", "label": "sunset", "priority": 5},
+    "danger": {"emoji": "\u26a0\ufe0f", "label": "danger", "priority": 0},
+}
+
+# ============================================================
+# Feature Flags
+# ============================================================
+FEATURES = {
+    "decision_engine": os.getenv("UOS_FEAT_DECISION", "true").lower() == "true",
+    "weather_api": os.getenv("UOS_FEAT_WEATHER_API", "true").lower() == "true",
+    "ephemeris": os.getenv("UOS_FEAT_EPHEMERIS", "true").lower() == "true",
+    "geofencing": os.getenv("UOS_FEAT_GEOFENCE", "false").lower() == "true",
+    "push_notifications": os.getenv("UOS_FEAT_PUSH", "false").lower() == "true",
+    "gamification": os.getenv("UOS_FEAT_GAMIFICATION", "false").lower() == "true",
+    "feedback_loop": os.getenv("UOS_FEAT_FEEDBACK", "true").lower() == "true",
+    "multi_city": os.getenv("UOS_FEAT_MULTI_CITY", "false").lower() == "true",
+}
+
+# ============================================================
+# Animation Intensity Levels
+# ============================================================
+ANIMATION_LEVELS = {
+    "calm": {"speed": 0.5, "scale": 1.0},
+    "moderate": {"speed": 1.0, "scale": 1.1},
+    "intense": {"speed": 1.5, "scale": 1.2},
+    "urgent": {"speed": 2.0, "scale": 1.3},
+}
+
+# ============================================================
+# Default Location (Paris, for demo)
+# ============================================================
+DEFAULT_LOCATION = {
+    "lat": 48.8566,
+    "lon": 2.3522,
+    "city": "Paris",
+    "country": "FR",
+}
