@@ -5,10 +5,10 @@ import LocationHeader from './components/LocationHeader'
 import WeatherInfoPanel from './components/WeatherInfoPanel'
 import SettingsDrawer from './components/SettingsDrawer'
 import SetupScreen from './components/SetupScreen'
-import { useDecision, useStreak, useLocations, useReverseGeocode, submitFeedback } from './hooks/useDecision'
+import { useDecision, useStreak, useLocations, useReverseGeocode } from './hooks/useDecision'
 
 /**
- * UoS v0.3.0 — Umbrella or Sunglasses
+ * UoS v0.4.1 — Umbrella or Sunglasses
  * "One glance. One decision."
  *
  * GOFIAN CREATIVE v0.3: Setup → BAM → Your Weather
@@ -174,7 +174,6 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [showExplain, setShowExplain] = useState(false)
   const [toast, setToast] = useState(null)
-  const [celebrating, setCelebrating] = useState(false)
   const [entered, setEntered] = useState(false)
   const [recentDecisions, setRecentDecisions] = useState([])
 
@@ -195,22 +194,11 @@ export default function App() {
     setNeedsSetup(false)
   }, [])
 
-  // Show toast (must be before handleFeedback which uses it)
+  // Show toast
   const showToast = useCallback((msg) => {
     setToast(msg)
     setTimeout(() => setToast(null), 2500)
   }, [])
-
-  // Feedback with celebration (Council Phase C4)
-  const handleFeedback = useCallback(async (fb) => {
-    if (!decision?.decision_id) return
-    await submitFeedback(decision.decision_id, fb)
-    if (fb === 'correct') {
-      setCelebrating(true)
-      setTimeout(() => setCelebrating(false), 600)
-    }
-    showToast(fb === 'correct' ? '👍' : '👎')
-  }, [decision, showToast])
 
   // Auto check-in on first load (skip during setup)
   useEffect(() => {
@@ -349,27 +337,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Feedback buttons with celebration (Council Phase C4) */}
-        {decision?.decision_id && (
-          <div className="feedback-area animate-slideUp">
-            <button
-              className={`feedback-btn correct ${celebrating ? 'celebrating animate-celebrate' : ''}`}
-              onClick={() => handleFeedback('correct')}
-              aria-label="Decision was correct"
-            >
-              👍
-              <span className="burst" />
-            </button>
-            <button
-              className="feedback-btn wrong"
-              onClick={() => handleFeedback('wrong')}
-              aria-label="Decision was wrong"
-            >
-              👎
-            </button>
-          </div>
-        )}
-
         {/* v0.4: Weather Info Panel (Council of Ten — Weather Expert) */}
         <WeatherInfoPanel
           weather={weather}
@@ -387,17 +354,7 @@ export default function App() {
         {/* v0.2: Demo Badge (Council Phase A7) */}
         {isDemoData && <div className="demo-badge">Demo</div>}
 
-        {/* Bottom navigation */}
-        <div className="bottom-bar">
-          <button className="bottom-btn active" onClick={refresh} aria-label="Refresh weather">
-            🌦️
-          </button>
-          <button className="bottom-btn" onClick={() => setShowExplain(true)} aria-label="Explain decision">
-            💡
-          </button>
-        </div>
-
-        {/* Overlays */}
+        {/* Overlays — tap icon to refresh, long-press for details */}
         {showExplain && (
           <ExplainOverlay
             decision={decision}

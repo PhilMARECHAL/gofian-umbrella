@@ -1,6 +1,7 @@
 /**
- * GOFIAN UoS v0.4.0 — LocationHeader Component
- * Prominent location display with flag, city, street/neighborhood, and settings gear.
+ * GOFIAN UoS v0.4.1 — LocationHeader Component (Mobile-first)
+ * Centered location display with flag, city, street/neighborhood.
+ * Settings gear positioned top-right independently.
  */
 import { countryToFlag, countryName } from '../utils/countryFlag'
 
