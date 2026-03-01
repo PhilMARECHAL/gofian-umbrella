@@ -275,8 +275,6 @@ export default function App() {
 
   const primaryIcon = decision?.primary_icon || 'sunglasses'
   const isRaining = primaryIcon === 'umbrella'
-  const isDemoData = weather?.source === 'demo'
-
   // Glow color class by icon type (Council Phase A4)
   const glowColorClass = {
     umbrella: 'glow-rain',
@@ -337,12 +335,10 @@ export default function App() {
           )}
         </div>
 
-        {/* v0.4: Weather Info Panel (Council of Ten — Weather Expert) */}
+        {/* v0.4.3: Weather Info Panel — Emoji Ghost Grid */}
         <WeatherInfoPanel
           weather={weather}
           ephemeris={ephemeris}
-          decision={decision}
-          onMoreDetails={() => setShowExplain(true)}
         />
 
         {/* Toast */}
@@ -351,8 +347,6 @@ export default function App() {
         {/* v0.2: History Strip (Council Phase C2) */}
         <HistoryStrip decisions={recentDecisions} />
 
-        {/* v0.2: Demo Badge (Council Phase A7) */}
-        {isDemoData && <div className="demo-badge">Demo</div>}
 
         {/* Overlays — tap icon to refresh, long-press for details */}
         {showExplain && (

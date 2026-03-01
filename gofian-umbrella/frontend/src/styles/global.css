@@ -1146,8 +1146,9 @@ html, body, #root {
 }
 
 /* ============================================================
-   v0.4.2: Ghost Grid (Council of Ten — Zero Chrome)
-   Invisible 3×2 grid. Cascade-in animation. Touch = golden thread.
+   v0.4.3: Ghost Grid with Emoji Labels (Council of Ten)
+   Emoji IS the label. Zero text. Universal.
+   Each stat = one emoji + one bold number. Emoji breathes gently.
    ============================================================ */
 
 .ghost-grid {
@@ -1157,37 +1158,45 @@ html, body, #root {
   z-index: 5;
 }
 
-.ghost-grid__sky {
-  font-size: clamp(11px, 3vw, 13px);
-  color: var(--text-secondary);
-  text-align: center;
-  opacity: 0.6;
-  margin-bottom: 16px;
-  animation: ghostCascade 0.6s ease-out backwards;
-  animation-delay: var(--cascade-delay, 0s);
-}
-
 .ghost-grid__stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px 12px;
+  gap: 24px 8px;
 }
 
 .ghost-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   cursor: default;
   transition: transform 0.25s ease, filter 0.25s ease;
   animation: ghostCascade 0.5s ease-out backwards;
   animation-delay: var(--cascade-delay, 0s);
 }
 
+/* Emoji label — breathes gently */
+.ghost-stat__emoji {
+  font-size: clamp(22px, 6vw, 28px);
+  line-height: 1;
+  animation: emojiBreathe 3s ease-in-out infinite;
+  animation-delay: var(--cascade-delay, 0s);
+}
+
+@keyframes emojiBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
 /* Touch/hover: scale up + glow */
 .ghost-stat:active {
   transform: scale(1.2);
   filter: brightness(1.4);
+}
+
+.ghost-stat:active .ghost-stat__emoji {
+  animation: none;
+  filter: drop-shadow(0 0 8px var(--accent-sun));
 }
 
 /* When one stat is active, dim siblings */
@@ -1204,22 +1213,15 @@ html, body, #root {
   line-height: 1.1;
 }
 
-.ghost-stat__sub {
-  font-size: clamp(10px, 2.8vw, 12px);
-  color: var(--text-dim);
-  opacity: 0.7;
-  text-transform: lowercase;
-}
-
 /* Cascade-in animation */
 @keyframes ghostCascade {
   from {
     opacity: 0;
-    transform: translateY(-16px);
+    transform: translateY(-16px) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
