@@ -1,21 +1,13 @@
 """
 GOFIAN Umbrella or Sunglasses — Project Configuration
 Module: config
-Description: UoS configuration re-exports factory defaults + project-specific overrides.
+Description: UoS configuration — decision engine weights, icon mappings, thresholds.
              Decision engine weights, icon mappings, thresholds.
 Author: GOFIAN AI
 Version: 0.1.0
 """
 
-import sys
 import os
-
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if _REPO_ROOT not in sys.path:
-    sys.path.insert(0, _REPO_ROOT)
-
-# Re-export factory defaults
-from factory.config.defaults import *  # noqa: F401,F403
 
 # ============================================================
 # UoS Identity

@@ -7,10 +7,8 @@ import os
 import sys
 
 _PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-_REPO_ROOT = os.path.abspath(os.path.join(_PROJECT_DIR, "..", ".."))
-for p in (_PROJECT_DIR, _REPO_ROOT):
-    if p not in sys.path:
-        sys.path.insert(0, p)
+if _PROJECT_DIR not in sys.path:
+    sys.path.insert(0, _PROJECT_DIR)
 
 from app import create_app
 from models import db, Location, Streak

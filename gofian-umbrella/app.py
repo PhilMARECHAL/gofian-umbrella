@@ -8,14 +8,8 @@ Version: 0.1.0
 """
 
 import os
-import sys
 import logging
 from datetime import datetime, timezone
-
-# Ensure repo root is in path for factory imports
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if _REPO_ROOT not in sys.path:
-    sys.path.insert(0, _REPO_ROOT)
 
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
