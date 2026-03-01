@@ -16,6 +16,7 @@ from decision_engine import decide, decide_from_raw
 from weather_client import get_weather, clear_cache
 from ephemeris import compute_ephemeris, sun_elevation
 from models import db, Location, Decision, Streak
+from geocoding import search_cities, reverse_geocode
 
 logger = logging.getLogger(__name__)
 
@@ -362,3 +363,41 @@ def get_stats():
             "accuracy_percent": accuracy,
         }
     }), 200
+
+
+# ============================================================
+# GEOCODING — City search & reverse lookup
+# ============================================================
+
+@api_bp.route("/geocode/search", methods=["GET"])
+def geocode_search():
+    """Search for cities by name.
+    
+    Query params: q (required, min 2 chars), limit (default 5, max 10)
+    """
+    q = request.args.get("q", "").strip()
+    if len(q) < 2:
+        return _error("Query must be at least 2 characters")
+
+    limit = min(10, int(request.args.get("limit", 5)))
+    results = search_cities(q, limit)
+    return jsonify({"data": results}), 200
+
+
+@api_bp.route("/geocode/reverse", methods=["GET"])
+def geocode_reverse():
+    """Reverse geocode: lat/lon -> city, street, neighborhood.
+    
+    Query params: lat, lon
+    """
+    try:
+        lat = float(request.args.get("lat", 0))
+        lon = float(request.args.get("lon", 0))
+    except (TypeError, ValueError):
+        return _error("Invalid lat/lon parameters")
+
+    if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+        return _error("lat must be -90..90, lon must be -180..180")
+
+    result = reverse_geocode(lat, lon)
+    return jsonify({"data": result}), 200

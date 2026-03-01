@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import WeatherIcon from './components/WeatherIcon'
 import ExplainOverlay from './components/ExplainOverlay'
-import LocationSelector from './components/LocationSelector'
+import LocationHeader from './components/LocationHeader'
+import WeatherInfoPanel from './components/WeatherInfoPanel'
+import SettingsDrawer from './components/SettingsDrawer'
 import SetupScreen from './components/SetupScreen'
-import { useDecision, useStreak, useLocations, submitFeedback } from './hooks/useDecision'
+import { useDecision, useStreak, useLocations, useReverseGeocode, submitFeedback } from './hooks/useDecision'
 
 /**
  * UoS v0.3.0 — Umbrella or Sunglasses
@@ -169,7 +171,7 @@ export default function App() {
     return null
   })
 
-  const [showLocations, setShowLocations] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [showExplain, setShowExplain] = useState(false)
   const [toast, setToast] = useState(null)
   const [celebrating, setCelebrating] = useState(false)
@@ -185,6 +187,7 @@ export default function App() {
   // ALL hooks must be called unconditionally (React rules of hooks)
   const { decision, weather, ephemeris, loading, error, refresh } = useDecision(lat, lon)
   const { streak, checkIn } = useStreak()
+  const { geoData, geoLoading } = useReverseGeocode(lat, lon)
 
   // v0.3: Setup complete callback — comes from SetupScreen
   const handleSetupComplete = useCallback((loc) => {
@@ -282,11 +285,6 @@ export default function App() {
     )
   }
 
-  const FLAGS = {
-    FR: '🇫🇷', CY: '🇨🇾', US: '🇺🇸', JP: '🇯🇵', AU: '🇦🇺',
-    GB: '🇬🇧', DE: '🇩🇪', ES: '🇪🇸', IT: '🇮🇹', BR: '🇧🇷',
-  }
-
   const primaryIcon = decision?.primary_icon || 'sunglasses'
   const isRaining = primaryIcon === 'umbrella'
   const isDemoData = weather?.source === 'demo'
@@ -309,16 +307,14 @@ export default function App() {
       {isRaining && <RainLayer intensity={decision?.animation_intensity || 'moderate'} />}
 
       <div className={`app-container ${glowColorClass}`}>
-        {/* Location indicator */}
-        <div className="location-bar">
-          <button
-            className="location-name"
-            onClick={() => setShowLocations(true)}
-            aria-label={`Location: ${selectedLocation?.name || 'Paris'}`}
-          >
-            {FLAGS[selectedLocation?.country] || '📍'} {selectedLocation?.name || 'Paris'}
-          </button>
-        </div>
+        {/* v0.4: Location Header with flag + street */}
+        <LocationHeader
+          city={geoData?.city || selectedLocation?.name || 'Paris'}
+          country={geoData?.country || selectedLocation?.country || ''}
+          street={geoData?.street || ''}
+          neighborhood={geoData?.neighborhood || ''}
+          onSettingsClick={() => setShowSettings(true)}
+        />
 
         {/* Streak badge */}
         {streak && streak.current_streak > 0 && (
@@ -374,6 +370,14 @@ export default function App() {
           </div>
         )}
 
+        {/* v0.4: Weather Info Panel (Council of Ten — Weather Expert) */}
+        <WeatherInfoPanel
+          weather={weather}
+          ephemeris={ephemeris}
+          decision={decision}
+          onMoreDetails={() => setShowExplain(true)}
+        />
+
         {/* Toast */}
         {toast && <div className="toast">{toast}</div>}
 
@@ -387,9 +391,6 @@ export default function App() {
         <div className="bottom-bar">
           <button className="bottom-btn active" onClick={refresh} aria-label="Refresh weather">
             🌦️
-          </button>
-          <button className="bottom-btn" onClick={() => setShowLocations(true)} aria-label="Choose location">
-            📍
           </button>
           <button className="bottom-btn" onClick={() => setShowExplain(true)} aria-label="Explain decision">
             💡
@@ -406,27 +407,29 @@ export default function App() {
           />
         )}
 
-        {showLocations && (
-          <LocationSelector
-            locations={locations}
-            selected={selectedLocation}
-            onSelect={(loc) => {
-              setSelectedLocation(loc)
-              // v0.3: Save new selection to localStorage
-              localStorage.setItem('uos_location', JSON.stringify({
-                name: loc.name, country: loc.country,
-                lat: loc.latitude, lon: loc.longitude,
-                savedAt: new Date().toISOString(),
-              }))
-            }}
-            onClose={() => setShowLocations(false)}
-            onReset={() => {
-              // v0.3: Reset setup — clear localStorage and show setup
-              localStorage.removeItem('uos_location')
-              setNeedsSetup(true)
-            }}
-          />
-        )}
+        {/* v0.4: Settings Drawer (replaces LocationSelector) */}
+        <SettingsDrawer
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          onLocationChange={(loc) => {
+            const newLoc = {
+              name: loc.name,
+              country: loc.country || '',
+              latitude: loc.latitude || loc.lat,
+              longitude: loc.longitude || loc.lon,
+            }
+            setSelectedLocation(newLoc)
+            localStorage.setItem('uos_location', JSON.stringify({
+              name: newLoc.name, country: newLoc.country,
+              lat: newLoc.latitude, lon: newLoc.longitude,
+              street: loc.street || '', neighborhood: loc.neighborhood || '',
+              savedAt: new Date().toISOString(),
+            }))
+            setShowSettings(false)
+          }}
+          currentLocation={selectedLocation}
+          savedLocations={locations}
+        />
       </div>
     </>
   )

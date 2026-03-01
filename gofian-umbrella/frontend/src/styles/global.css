@@ -1,5 +1,5 @@
 /* ============================================================
-   GOFIAN Umbrella or Sunglasses v0.3.0 — Global Styles
+   GOFIAN Umbrella or Sunglasses v0.4.0 — Global Styles
    Design: Icon-native, atmospheric, immersive weather canvas
    GOFIAN CREATIVE: Setup → BAM → Your Weather
    ============================================================ */
@@ -351,7 +351,8 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: max(80px, calc(env(safe-area-inset-top) + 70px));
   height: 100vh;
   width: 100vw;
   position: relative;
@@ -364,7 +365,9 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
+  flex: 0 0 auto;
+  max-height: 45vh;
+  min-height: 180px;
   gap: 20px;
 }
 
@@ -1053,6 +1056,384 @@ html, body, #root {
 @keyframes setup-result-in {
   from { opacity: 0; transform: translateX(-10px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+
+/* ============================================================
+   v0.4: Location Header (Council of Ten — Creative)
+   Flag + City + Street + Settings gear
+   ============================================================ */
+
+.location-header {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  left: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.location-header__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.location-header__city {
+  font-size: clamp(16px, 4vw, 20px);
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-header__flag {
+  font-size: clamp(18px, 4.5vw, 24px);
+}
+
+.location-header__street {
+  font-size: clamp(11px, 2.5vw, 13px);
+  color: var(--text-secondary);
+  opacity: 0.7;
+  padding-left: 30px;
+}
+
+.location-header__settings-btn {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.location-header__settings-btn:hover {
+  border-color: var(--accent-sun);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   v0.4: Weather Info Panel (Council of Ten — Glassmorphic)
+   6 weather stats in a 3-column grid
+   ============================================================ */
+
+.weather-info-panel {
+  position: relative;
+  margin: 8px 16px;
+  max-height: 35vh;
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 16px;
+  z-index: 5;
+  overflow-y: auto;
+}
+
+.weather-info-panel__description {
+  font-size: clamp(13px, 3vw, 15px);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 12px;
+  text-transform: capitalize;
+}
+
+.weather-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.weather-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+}
+
+.weather-stat__icon {
+  font-size: 18px;
+}
+
+.weather-stat__value {
+  font-size: clamp(14px, 3.5vw, 18px);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.weather-stat__sub {
+  font-size: clamp(10px, 2.5vw, 12px);
+  color: var(--text-dim);
+}
+
+/* Temperature color coding */
+.stat--freezing { color: var(--accent-cold) !important; }
+.stat--cold { color: #93c5fd !important; }
+.stat--warm { color: var(--accent-sun) !important; }
+.stat--hot { color: var(--accent-heat) !important; }
+
+/* Rain probability colors */
+.stat--rain-low { color: #86efac !important; }
+.stat--rain-medium { color: var(--accent-sun) !important; }
+.stat--rain-high { color: var(--accent-heat) !important; }
+
+.weather-info-panel__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.weather-info-panel__source {
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+.weather-info-panel__more {
+  font-size: 11px;
+  color: var(--accent-sun);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.weather-info-panel__more:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   v0.4: Settings Drawer (Bottom Sheet)
+   Replaces LocationSelector
+   ============================================================ */
+
+.settings-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 80;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.settings-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  background: var(--bg-surface);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px max(20px, env(safe-area-inset-bottom));
+  z-index: 85;
+  overflow-y: auto;
+  animation: settings-slide-up 0.3s ease-out;
+}
+
+.settings-drawer__handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.settings-drawer__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.settings-drawer__gps-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
+  color: var(--accent-sun);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+
+.settings-drawer__gps-btn:hover {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+.settings-drawer__gps-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.settings-drawer__search {
+  margin-bottom: 16px;
+}
+
+.settings-drawer__saved-title {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.settings-drawer__saved-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 6px;
+}
+
+.settings-drawer__saved-item:hover {
+  border-color: var(--accent-sun);
+}
+
+.settings-drawer__saved-item--active {
+  border-color: var(--accent-sun);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.settings-drawer__home {
+  font-size: 14px;
+}
+
+@keyframes settings-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ============================================================
+   v0.4: CitySearch Component (shared by Setup + Settings)
+   ============================================================ */
+
+.city-search {
+  position: relative;
+}
+
+.city-search__input {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+}
+
+.city-search__input::placeholder {
+  color: var(--text-dim);
+}
+
+.city-search__input:focus {
+  border-color: var(--accent-sun);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+.city-search__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 20;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.city-search__status {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.city-search__error {
+  color: var(--accent-heat);
+}
+
+.city-search__result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+  animation: setup-result-in 0.3s ease-out both;
+}
+
+.city-search__result:hover {
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.city-search__result + .city-search__result {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.city-search__flag {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+}
+
+.city-search__name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.city-search__state {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.city-search__country {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 /* v0.3: Reduced motion for setup */

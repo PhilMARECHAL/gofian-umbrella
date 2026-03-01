@@ -3,6 +3,7 @@ import React from 'react'
 /**
  * ExplainOverlay — Long-press reveal (Contrarian + Guardian approved)
  * Shows a one-line explanation without polluting the default icon-only experience.
+ * v0.4: Weather data grid and ephemeris removed — now in WeatherInfoPanel.
  */
 export default function ExplainOverlay({ decision, weather, ephemeris, onClose }) {
   if (!decision) return null
@@ -28,44 +29,6 @@ export default function ExplainOverlay({ decision, weather, ephemeris, onClose }
           <p className="explain-text" style={{ fontSize: '14px', opacity: 0.7 }}>
             {iconEmojis[decision.secondary_icon]} {decision.secondary_reason}
           </p>
-        )}
-
-        {weather && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
-            marginTop: '16px',
-            fontSize: '13px',
-            color: 'var(--text-dim)',
-          }}>
-            {weather.temperature_c != null && (
-              <span>🌡️ {weather.temperature_c.toFixed(1)}°C</span>
-            )}
-            {weather.wind_speed_kmh != null && (
-              <span>💨 {weather.wind_speed_kmh.toFixed(0)} km/h</span>
-            )}
-            {weather.rain_probability != null && (
-              <span>🌧️ {(weather.rain_probability * 100).toFixed(0)}%</span>
-            )}
-            {weather.uv_index != null && (
-              <span>☀️ UV {weather.uv_index.toFixed(1)}</span>
-            )}
-          </div>
-        )}
-
-        {ephemeris && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '16px',
-            marginTop: '12px',
-            fontSize: '13px',
-            color: 'var(--text-dim)',
-          }}>
-            {ephemeris.sunrise && <span>🌅 {ephemeris.sunrise}</span>}
-            {ephemeris.sunset && <span>🌇 {ephemeris.sunset}</span>}
-          </div>
         )}
 
         {/* v0.2: Data source disclosure (Council A7, Guardian requirement) */}

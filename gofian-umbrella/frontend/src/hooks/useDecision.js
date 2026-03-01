@@ -93,6 +93,23 @@ export function useLocations() {
   return { locations, refresh: fetchLocations }
 }
 
+export function useReverseGeocode(lat, lon) {
+  const [geoData, setGeoData] = useState(null)
+  const [geoLoading, setGeoLoading] = useState(false)
+
+  useEffect(() => {
+    if (lat == null || lon == null) return
+    setGeoLoading(true)
+    fetch(`${API}/geocode/reverse?lat=${lat}&lon=${lon}`)
+      .then(r => r.json())
+      .then(d => setGeoData(d.data))
+      .catch(() => setGeoData(null))
+      .finally(() => setGeoLoading(false))
+  }, [lat, lon])
+
+  return { geoData, geoLoading }
+}
+
 export async function submitFeedback(decisionId, feedback) {
   try {
     const res = await fetch(`${API}/decisions/${decisionId}/feedback`, {

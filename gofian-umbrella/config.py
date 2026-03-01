@@ -1,7 +1,7 @@
 """
 GOFIAN Umbrella or Sunglasses — Project Configuration
 Module: config
-Description: UoS configuration — decision engine weights, icon mappings, thresholds.
+Description: UoS configuration re-exports factory defaults + project-specific overrides.
              Decision engine weights, icon mappings, thresholds.
 Author: GOFIAN AI
 Version: 0.1.0
@@ -12,7 +12,7 @@ import os
 # ============================================================
 # UoS Identity
 # ============================================================
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 PROJECT_NAME = "umbrella-or-sunglasses"
 DISPLAY_NAME = "Umbrella or Sunglasses"
 TABLE_PREFIX = "uos_"
@@ -43,6 +43,13 @@ WEATHERAPI_BASE_URL = "https://api.weatherapi.com/v1"
 
 # Cache TTL for weather data (seconds)
 WEATHER_CACHE_TTL = int(os.getenv("UOS_WEATHER_CACHE_TTL", "300"))  # 5 minutes
+
+# ============================================================
+# Geocoding Configuration
+# ============================================================
+NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org"
+NOMINATIM_USER_AGENT = f"UoS/{VERSION} (GOFIAN AI)"
+GEOCODE_CACHE_TTL = int(os.getenv("UOS_GEOCODE_CACHE_TTL", "86400"))  # 24 hours
 
 # ============================================================
 # Decision Engine — Scoring Weights (Analyst-approved v1)
@@ -100,6 +107,7 @@ FEATURES = {
     "gamification": os.getenv("UOS_FEAT_GAMIFICATION", "false").lower() == "true",
     "feedback_loop": os.getenv("UOS_FEAT_FEEDBACK", "true").lower() == "true",
     "multi_city": os.getenv("UOS_FEAT_MULTI_CITY", "false").lower() == "true",
+    "geocoding_api": os.getenv("UOS_FEAT_GEOCODING", "true").lower() == "true",
 }
 
 # ============================================================
