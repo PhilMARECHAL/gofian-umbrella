@@ -26,6 +26,10 @@ UOS_SECRET_KEY = os.getenv("UOS_SECRET_KEY", "uos-dev-secret-change-me")
 UOS_DEBUG = os.getenv("UOS_DEBUG", "true").lower() == "true"
 UOS_CORS_ORIGINS = os.getenv("UOS_CORS_ORIGINS", "*")
 
+# Flask defaults (previously from factory.config.defaults)
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
 # ============================================================
 # Weather API Configuration
 # ============================================================
